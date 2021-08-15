@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <memory>
 #include <ctime>
 #include <cmath>
 #include "./bank.hpp"
@@ -20,7 +19,7 @@ Date::Date()
 // constructor
 PaymentHistory::PaymentHistory(const unsigned int& accNum, const long double& transAm, const string& transContent)
 {
-    this->transferDate = std::make_unique<Date>();
+    this->transferDate = new Date();
     this->accountNumber = accNum;
     this->transferAmount = transAm;
     this->transferContent = transContent;
@@ -28,10 +27,17 @@ PaymentHistory::PaymentHistory(const unsigned int& accNum, const long double& tr
 
 
 
+PaymentHistory::~PaymentHistory()
+{
+    delete this->transferDate;
+}
+
+
+
 // constructor
 PaymentAccount::PaymentAccount()
 {
-    this->openDate = std::make_unique<Date>();
+    this->openDate = new Date();
     this->accountNumber = 759999999;
     this->balance = 100000000; // 100m
 }
@@ -40,6 +46,10 @@ PaymentAccount::PaymentAccount()
 
 PaymentAccount::~PaymentAccount()
 {
+    for (auto h : HistoryArray)
+    {
+        delete h;
+    }
     this->HistoryArray.clear();
 }
 
@@ -58,7 +68,8 @@ bool PaymentAccount::transferTo(const long double& amount, const string& content
 
     // else
     this->balance -= amount;
-    this->HistoryArray.push_back( std::make_unique<PaymentHistory>(this->accountNumber, -amount, content) ); //
+    PaymentHistory* tmp = new PaymentHistory(this->accountNumber, -amount, content);
+    this->HistoryArray.push_back(tmp); //
     return true;
 }
 
@@ -69,7 +80,7 @@ void PaymentAccount::showHistory()
     cout << "\n---- HISTORY ----\n";
     for (auto& h : this->HistoryArray)
     {
-        cout << "--> " << h->accountNumber << "; " << h->transferAmount << "; " << h->transferContent << "; " << h->transferDate->timestamp << endl;
+        cout << fixed << "--> " << h->accountNumber << "; " << h->transferAmount << "; " << h->transferContent << "; " << h->transferDate->timestamp << endl;
     }
 }
 
@@ -289,7 +300,7 @@ int main()
 {
 	PaymentAccount myPA;
     cout << "\n---- Tai khoan duoc mo thanh cong! ----\n";   
-    cout << "\nSo du trong tai khoan chinh : " << myPA.getBalance() << " VND" << endl;
+    cout << "\nSo du trong tai khoan chinh : " << fixed << myPA.getBalance() << " VND" << endl;
     myPA.transferTo(500000, "chuyen khoan"); // 0.5m
     myPA.transferTo(10000, "chuyen khoan"); // 0.01m
     myPA.showHistory();
@@ -327,11 +338,11 @@ int main()
     CashBackCardAccount myCBCA;
     cout << "\n----------------------------------------------------------------\n";
     cout << "\n---- The tin dung hoan tien duoc mo thanh cong! ----\n";   
-    myCBCA.payment(3000000); //   3m
-    myCBCA.payment(3000000); //   3m
-    myCBCA.payment(3000000); //   3m
-    myCBCA.payment(3000000); //   3m
-    myCBCA.payment(3000000); //   3m
+    myCBCA.payment(10000); //   3m
+    myCBCA.payment(3235235); //   3m
+    myCBCA.payment(111111); //   3m
+    myCBCA.payment(29225325); //   3m
+    myCBCA.payment(83643462); //   3m
     cout << "Tong so tien da duoc hoan lai : " << myCBCA.getCurrentCashBack() << " VND\n";
     myCBCA.redeemCashBack(myPA);
 

@@ -1,5 +1,4 @@
 #include <vector>
-#include <memory>
 
 using namespace std;
 
@@ -19,11 +18,14 @@ class PaymentHistory
 	unsigned int accountNumber;
 	long double transferAmount;
 	string transferContent;
-	std::unique_ptr<Date> transferDate;
+	Date* transferDate;
 
 public:
 	// constructor
 	PaymentHistory(const unsigned int& accNum, const long double& transAm, const string& transContent);
+
+	// destructor
+	~PaymentHistory();
 
 	friend class PaymentAccount;
 };
@@ -32,10 +34,10 @@ public:
 
 class PaymentAccount
 {
-	std::unique_ptr<Date> openDate; // ngay mo tai khoan
+	Date* openDate; // ngay mo tai khoan
 	unsigned int accountNumber;
 	long double balance;
-	vector<std::unique_ptr<PaymentHistory>> HistoryArray;
+	vector<PaymentHistory*> HistoryArray;
 
 public:
 	// constructor
