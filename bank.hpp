@@ -65,8 +65,8 @@ protected:
 	long double minPayment;
 	long double latePenalty;
 	long double balance; // balance la tong so no
-	string history; // history cua credit card co format la: "dd/mm/yy/; +/-amount;\n"
-
+	string history;
+	
 public:
 	// constructor
 	CreditCardAccount();

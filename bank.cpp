@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <vector>
 #include <ctime>
 #include <cmath>
@@ -115,7 +117,9 @@ void CreditCardAccount::writeHistory(const long double& amount, const string& hi
 {
     Date d;
     string transferDate(d.timestamp); // chuyen c-style string sang cstring 
-    this->history += (transferDate + "; " + std::to_string(-amount) + "; " + historyContent + '\n');
+    ostringstream ss;
+    ss << fixed << setprecision(0) << -amount;
+    this->history += (transferDate + "; " + ss.str() + "; " + historyContent + '\n');
 }
 
 
@@ -300,7 +304,7 @@ int main()
 {
 	PaymentAccount myPA;
     cout << "\n---- Tai khoan duoc mo thanh cong! ----\n";   
-    cout << "\nSo du trong tai khoan chinh : " << fixed << myPA.getBalance() << " VND" << endl;
+    cout << "\nSo du trong tai khoan chinh : " << fixed << setprecision(0) << myPA.getBalance() << " VND" << endl;
     myPA.transferTo(500000, "chuyen khoan"); // 0.5m
     myPA.transferTo(10000, "chuyen khoan"); // 0.01m
     myPA.showHistory();
