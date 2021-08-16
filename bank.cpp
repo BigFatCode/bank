@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <vector>
 #include <ctime>
 #include <cmath>
@@ -117,9 +116,7 @@ void CreditCardAccount::writeHistory(const long double& amount, const string& hi
 {
     Date d;
     string transferDate(d.timestamp); // chuyen c-style string sang cstring 
-    ostringstream ss;
-    ss << fixed << setprecision(0) << -amount;
-    this->history += (transferDate + "; " + ss.str() + "; " + historyContent + '\n');
+    this->history += (transferDate + "; " + std::to_string(long(-amount)) + "; " + historyContent + '\n');
 }
 
 
