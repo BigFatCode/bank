@@ -1,6 +1,5 @@
 #include <vector>
-
-using namespace std;
+#include <memory>
 
 class Date
 {
@@ -17,15 +16,12 @@ class PaymentHistory
 {
 	unsigned int accountNumber;
 	long double transferAmount;
-	string transferContent;
-	Date* transferDate;
+	std::string transferContent;
+	std::unique_ptr<Date> transferDate;
 
 public:
 	// constructor
-	PaymentHistory(const unsigned int& accNum, const long double& transAm, const string& transContent);
-
-	// destructor
-	~PaymentHistory();
+	PaymentHistory(const unsigned int& accNum, const long double& transAm, const std::string& transContent);
 
 	friend class PaymentAccount;
 };
@@ -34,10 +30,10 @@ public:
 
 class PaymentAccount
 {
-	Date* openDate; // ngay mo tai khoan
+	std::unique_ptr<Date> openDate; // ngay mo tai khoan
 	unsigned int accountNumber;
 	long double balance;
-	vector<PaymentHistory*> HistoryArray;
+	std::vector<std::unique_ptr<PaymentHistory>> HistoryArray;
 
 public:
 	// constructor
@@ -47,12 +43,25 @@ public:
 	~PaymentAccount();
 
 	long double getBalance();
-	bool transferTo(const long double& amount, const string& content);
+	bool transferTo(const long double& amount, const std::string& content);
 	void showHistory();
 
 	friend class CreditCardAccount;
 	friend class RewardCardAccount;
 	friend class CashBackCardAccount;
+};
+
+
+
+class CreditHistory
+{
+	std::unique_ptr<Date> transferDate;
+	long double transferAmount;
+	std::string transferContent;
+
+public:
+	// constructor
+	CreditHistory(const long double& transAm, const std::string& transContent)
 };
 
 
@@ -65,18 +74,18 @@ protected:
 	long double minPayment;
 	long double latePenalty;
 	long double balance; // balance la tong so no
-	string history;
+	std::vector<std::unique_ptr<CreditHistory>> HistoryArray;
 	
 public:
 	// constructor
 	CreditCardAccount();
 
 	long double getBalance();
-	void writeHistory(const long double& amount, const string& historyContent);
+	void writeHistory(const long double& amount, const std::string& historyContent);
 	void showHistory();
 	bool charge(const long double& amount);
 	void payment(const long double& amount);
-	void payDebt(PaymentAccount& yourPA, const string& transContent);
+	void payDebt(PaymentAccount& yourPA, const std::string& transContent);
 };
 
 

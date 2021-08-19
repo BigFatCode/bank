@@ -1,11 +1,10 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <memory>
 #include <ctime>
 #include <cmath>
 #include "./bank.hpp"
-
-using namespace std;
 
 // constructor
 Date::Date()
@@ -18,9 +17,9 @@ Date::Date()
 
 
 // constructor
-PaymentHistory::PaymentHistory(const unsigned int& accNum, const long double& transAm, const string& transContent)
+PaymentHistory::PaymentHistory(const unsigned int& accNum, const long double& transAm, const std::string& transContent)
 {
-    this->transferDate = new Date();
+    this->transferDate =  std::make_unique<Date>();
     this->accountNumber = accNum;
     this->transferAmount = transAm;
     this->transferContent = transContent;
@@ -28,29 +27,18 @@ PaymentHistory::PaymentHistory(const unsigned int& accNum, const long double& tr
 
 
 
-PaymentHistory::~PaymentHistory()
-{
-    delete this->transferDate;
-}
-
-
-
 // constructor
 PaymentAccount::PaymentAccount()
 {
-    this->openDate = new Date();
+    this->openDate = std::make_unique<Date>();
     this->accountNumber = 759999999;
     this->balance = 100000000; // 100m
 }
 
 
-
+// destructor
 PaymentAccount::~PaymentAccount()
 {
-    for (auto h : HistoryArray)
-    {
-        delete h;
-    }
     this->HistoryArray.clear();
 }
 
@@ -63,14 +51,13 @@ long double PaymentAccount::getBalance()
 
 
 
-bool PaymentAccount::transferTo(const long double& amount, const string& content = "")
+bool PaymentAccount::transferTo(const long double& amount, const std::string& content = "")
 {
     if (amount > this->balance) {return false;}
 
     // else
     this->balance -= amount;
-    PaymentHistory* tmp = new PaymentHistory(this->accountNumber, -amount, content);
-    this->HistoryArray.push_back(tmp); //
+    this->HistoryArray.push_back(std::make_unique<PaymentHistory>(this->accountNumber, -amount, content));
     return true;
 }
 
@@ -87,6 +74,16 @@ void PaymentAccount::showHistory()
 
 
 
+//constructor
+CreditHistory(const long double& transAm, const std::string& transContent)
+{
+    this->transferDate = std::make_unique<Date>();
+    this->transferAmount = transAm;
+    this->transferContent = transContent;
+}
+
+
+
 // constructor
 CreditCardAccount::CreditCardAccount()
 {
@@ -95,6 +92,14 @@ CreditCardAccount::CreditCardAccount()
     this->creditLimit = 60000000; // 60m
     this->history = "";
 };
+
+
+
+//destructor
+CreditCardAccount::~CreditCardAccount()
+{
+    this->HistoryArray.clear();
+}
 
 
 
@@ -112,11 +117,10 @@ bool CreditCardAccount::charge(const long double& amount)
 
 
 
-void CreditCardAccount::writeHistory(const long double& amount, const string& historyContent = "")
+// mutual function for all 3 types of Credit Cards
+void CreditCardAccount::writeHistory(const long double& amount, const std::string& historyContent = "")
 {
-    Date d;
-    string transferDate(d.timestamp); // chuyen c-style string sang cstring 
-    this->history += (transferDate + "; " + std::to_string(long(-amount)) + "; " + historyContent + '\n');
+    historyArray.push_back(std::make_unique<CreditHistory>(amount, historyContent));
 }
 
 
@@ -134,12 +138,16 @@ void CreditCardAccount::payment(const long double& amount)
 
 void CreditCardAccount::showHistory()
 {
-    cout << this->history;
+    cout << "\n---- HISTORY ----\n";
+    for (auto& h : this->HistoryArray)
+    {
+        cout << fixed << "--> " << h->transferAmount << "; " << h->transferContent << "; " << h->transferDate->timestamp << endl;
+    }   
 }
 
 
 
-void CreditCardAccount::payDebt(PaymentAccount& yourPA, const string& transferContent)
+void CreditCardAccount::payDebt(PaymentAccount& yourPA, const std::string& transferContent)
 {
     if (this->balance == 0) {return;} // khong no
 
